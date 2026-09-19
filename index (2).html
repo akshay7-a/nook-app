@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nook — Find a Room or Roommate Near Campus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #F6F2E9;
+    --bg-alt: #FFFDF7;
+    --card: #FFFFFF;
+    --ink: #241F17;
+    --ink-soft: #5C5346;
+    --line: #E1D8C4;
+    --teal: #1F5C57;
+    --teal-deep: #143E3B;
+    --mustard: #E0A73B;
+    --mustard-deep: #B9822A;
+    --danger: #B5473A;
+    --radius: 14px;
+    --font-display: "Fraunces", Georgia, serif;
+    --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1B1A16;
+      --bg-alt: #221F1A;
+      --card: #26231D;
+      --ink: #F2ECDE;
+      --ink-soft: #B9AF9C;
+      --line: #3A362C;
+      --teal: #4E9E92;
+      --teal-deep: #7FC4B8;
+      --mustard: #E8B85A;
+      --mustard-deep: #F0CB85;
+      --danger: #D98274;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg: #1B1A16;
+    --bg-alt: #221F1A;
+    --card: #26231D;
+    --ink: #F2ECDE;
+    --ink-soft: #B9AF9C;
+    --line: #3A362C;
+    --teal: #4E9E92;
+    --teal-deep: #7FC4B8;
+    --mustard: #E8B85A;
+    --mustard-deep: #F0CB85;
+    --danger: #D98274;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+  img { max-width: 100%; }
+
+  a { color: inherit; }
+
+  .wrap {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 20px 80px;
+  }
+
+  /* HERO */
+  header.hero {
+    background: linear-gradient(180deg, var(--teal-deep) 0%, var(--teal) 100%);
+    color: #FBF7EC;
+    padding: 56px 20px 64px;
+    position: relative;
+    overflow: hidden;
+  }
+  header.hero::after{
+    content:"";
+    position:absolute; inset:0;
+    background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.07) 1.5px, transparent 0);
+    background-size: 22px 22px;
+    pointer-events:none;
+  }
+  .hero-inner {
+    max-width: 1080px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .eyebrow-row {
+    display:flex; align-items:center; gap:10px;
+    font-size: 14px; color: #D9EFE9; margin-bottom: 18px;
+  }
+  .pin-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--mustard);
+    display:inline-block;
+  }
+  h1.title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(34px, 5.2vw, 56px);
+    line-height: 1.05;
+    margin: 0 0 16px;
+    max-width: 14ch;
+  }
+  p.subtitle {
+    font-size: 17px;
+    line-height: 1.6;
+    max-width: 46ch;
+    color: #E7F2EE;
+    margin: 0 0 30px;
+  }
+  .hero-stats {
+    display:flex; gap: 36px; flex-wrap: wrap;
+  }
+  .stat-num {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 600;
+    color: #FBF7EC;
+  }
+  .stat-label {
+    font-size: 13px;
+    color: #CFE7E0;
+  }
+
+  /* NAV TABS */
+  .tabbar {
+    display:flex;
+    gap: 4px;
+    margin-top: -28px;
+    position: relative;
+    z-index: 2;
+    background: var(--bg-alt);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 6px;
+    max-width: 620px;
+  }
+  .tab-btn {
+    flex:1;
+    border: none;
+    background: transparent;
+    color: var(--ink-soft);
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 14.5px;
+    padding: 12px 14px;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: background .15s ease, color .15s ease;
+  }
+  .tab-btn.active {
+    background: var(--teal);
+    color: #fff;
+  }
+  .tab-btn:not(.active):hover { background: var(--bg); color: var(--ink); }
+
+  section.panel { display:none; margin-top: 34px; }
+  section.panel.active { display:block; }
+
+  /* CARD / FORM STYLES */
+  .surface {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 24px;
+  }
+  h2.section-title {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0 0 6px;
+  }
+  p.section-desc {
+    color: var(--ink-soft);
+    font-size: 14.5px;
+    margin: 0 0 20px;
+    line-height: 1.5;
+  }
+
+  .field-grid {
+    display:grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .field-grid.full { grid-template-columns: 1fr; }
+  @media (max-width: 620px) { .field-grid { grid-template-columns: 1fr; } }
+
+  label.field-label {
+    display:block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--ink);
+  }
+  input[type="text"], input[type="number"], input[type="tel"], input[type="email"], select, textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: var(--bg-alt);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 14.5px;
+  }
+  textarea { resize: vertical; min-height: 70px; }
+  input:focus, select:focus, textarea:focus {
+    outline: 2px solid var(--teal);
+    outline-offset: 1px;
+  }
+
+  .radio-row { display:flex; gap: 10px; flex-wrap: wrap; }
+  .radio-chip {
+    border: 1px solid var(--line);
+    background: var(--bg-alt);
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 13.5px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .radio-chip input { display:none; }
+  .radio-chip.checked {
+    background: var(--teal);
+    border-color: var(--teal);
+    color: #fff;
+  }
+
+  .field-block { margin-bottom: 18px; }
+
+  button.btn {
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 14.5px;
+    padding: 12px 22px;
+    border-radius: 9px;
+    border: none;
+    cursor: pointer;
+    transition: transform .1s ease, background .15s ease;
+  }
+  button.btn:active { transform: scale(0.98); }
+  .btn-primary { background: var(--mustard); color: #24200f; }
+  .btn-primary:hover { background: var(--mustard-deep); }
+  .btn-secondary { background: transparent; border: 1px solid var(--line); color: var(--ink); }
+  .btn-secondary:hover { background: var(--bg-alt); }
+  .btn-ghost { background: transparent; color: var(--teal); font-weight: 600; border:none; cursor:pointer; padding: 0; font-size: 13.5px; text-decoration: underline; }
+  .btn-danger { background: transparent; color: var(--danger); border: 1px solid var(--line); }
+
+  .form-actions { display:flex; gap: 12px; margin-top: 20px; align-items:center; }
+  .toast {
+    font-size: 13.5px; color: var(--teal-deep); font-weight: 600;
+  }
+
+  /* FILTER BAR */
+  .filter-bar {
+    display:flex; gap: 14px; flex-wrap: wrap; align-items: flex-end;
+    margin-bottom: 24px;
+  }
+  .filter-item { min-width: 140px; flex: 1; }
+  .filter-item label { font-size: 12.5px; color: var(--ink-soft); display:block; margin-bottom:5px; font-weight:600;}
+
+  /* LISTING GRID */
+  .listing-grid {
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 18px;
+  }
+  .listing-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 20px;
+    position: relative;
+    display:flex; flex-direction:column; gap: 10px;
+  }
+  .listing-top { display:flex; justify-content: space-between; align-items:flex-start; gap: 10px;}
+  .listing-type-badge {
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    text-transform: none;
+  }
+  .type-room { background: rgba(31,92,87,0.12); color: var(--teal-deep); }
+  .type-roommate { background: rgba(224,167,59,0.16); color: var(--mustard-deep); }
+  .match-badge {
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    background: var(--teal);
+    padding: 4px 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .listing-title { font-family: var(--font-display); font-size: 18px; font-weight: 600; margin: 0; }
+  .listing-meta { font-size: 13.5px; color: var(--ink-soft); display:flex; gap: 14px; flex-wrap: wrap;}
+  .listing-desc { font-size: 13.5px; color: var(--ink); line-height: 1.5; }
+  .pref-tags { display:flex; gap: 6px; flex-wrap: wrap; }
+  .pref-tag {
+    font-size: 11.5px;
+    background: var(--bg-alt);
+    border: 1px solid var(--line);
+    padding: 3px 9px;
+    border-radius: 999px;
+    color: var(--ink-soft);
+  }
+  .listing-footer { display:flex; justify-content: space-between; align-items:center; margin-top: 6px; }
+  .contact-reveal { font-size: 13.5px; font-weight: 700; color: var(--teal-deep); }
+  .budget-tag { font-family: var(--font-display); font-weight:600; font-size: 16px; }
+
+  .empty-state {
+    text-align:center;
+    padding: 60px 20px;
+    color: var(--ink-soft);
+  }
+  .empty-state h3 { font-family: var(--font-display); color: var(--ink); font-size: 20px; margin-bottom: 8px;}
+
+  .helper-row { display:flex; justify-content: space-between; align-items:center; margin-bottom: 18px; flex-wrap: wrap; gap: 10px;}
+  .count-note { font-size: 13.5px; color: var(--ink-soft); }
+
+  .match-panel {
+    margin-bottom: 26px;
+  }
+  .match-panel-header { display:flex; justify-content: space-between; align-items:center; }
+
+  footer.foot {
+    text-align:center;
+    padding: 30px 20px 10px;
+    color: var(--ink-soft);
+    font-size: 13px;
+  }
+
+  ::selection { background: var(--mustard); color: #24200f; }
+</style>
+</head>
+<body>
+
+<div id="configBanner" style="display:none; background:#B5473A; color:#fff; padding:12px 20px; font-size:14px; text-align:center; font-weight:600;">
+  ⚠️ Backend not connected yet — open this HTML file in a text editor, find <code style="background:rgba(255,255,255,0.2); padding:2px 6px; border-radius:4px;">API_URL</code> near the top of the script, and paste in your Google Apps Script URL (see SETUP-INSTRUCTIONS.md).
+</div>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow-row"><span class="pin-dot"></span> Campus housing, sorted</div>
+    <h1 class="title">Nook: find a room or roommate near campus</h1>
+    <p class="subtitle">A free board for your college — post a room, look for one, and see who actually fits your lifestyle before you message them.</p>
+    <div class="hero-stats">
+      <div><div class="stat-num" id="statTotal">0</div><div class="stat-label">Active listings</div></div>
+      <div><div class="stat-num" id="statRooms">0</div><div class="stat-label">Rooms available</div></div>
+      <div><div class="stat-num" id="statSeekers">0</div><div class="stat-label">Looking for a room</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="tabbar">
+    <button class="tab-btn active" data-tab="browse">Browse</button>
+    <button class="tab-btn" data-tab="post">My listing</button>
+    <button class="tab-btn" data-tab="match">My preferences</button>
+  </div>
+
+  <!-- BROWSE PANEL -->
+  <section class="panel active" id="panel-browse">
+    <div class="surface match-panel" id="matchPanelSurface">
+      <div class="match-panel-header" id="matchToggle">
+        <div>
+          <h2 class="section-title" style="font-size:17px; margin-bottom:2px;">Set your preferences to see match %</h2>
+          <p class="section-desc" style="margin-bottom:0;">Head to "My preferences" to get a compatibility score on every listing.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <div class="filter-item">
+        <label>Looking for</label>
+        <select id="filterType">
+          <option value="all">All listings</option>
+          <option value="room">Rooms available</option>
+          <option value="roommate">People looking for a room</option>
+        </select>
+      </div>
+      <div class="filter-item">
+        <label>Max budget (₹/month)</label>
+        <input type="number" id="filterBudget" placeholder="e.g. 8000">
+      </div>
+      <div class="filter-item">
+        <label>Max distance (km)</label>
+        <input type="number" id="filterDistance" placeholder="e.g. 2">
+      </div>
+      <div class="filter-item">
+        <label>Gender preference</label>
+        <select id="filterGender">
+          <option value="Any">Any</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="helper-row">
+      <span class="count-note" id="countNote">0 listings</span>
+      <span class="count-note" id="syncStatus" style="font-style:italic;"></span>
+      <div style="display:flex; gap:14px; align-items:center;">
+        <button class="btn-ghost" id="refreshBtn">Refresh</button>
+        <button class="btn-ghost" id="loadSampleBtn">Load sample listings</button>
+        <button class="btn-ghost" id="clearAllBtn" style="color:var(--danger);">Clear all data</button>
+      </div>
+    </div>
+
+    <div class="listing-grid" id="listingGrid"></div>
+    <div class="empty-state" id="emptyState" style="display:none;">
+      <h3>No listings yet</h3>
+      <p>Be the first to post a room or roommate listing — or load sample listings to see how it looks.</p>
+    </div>
+  </section>
+
+  <!-- POST PANEL -->
+  <section class="panel" id="panel-post">
+
+    <!-- Shown when the user already has a listing saved -->
+    <div class="surface" id="myListingSummary" style="display:none; margin-bottom:20px;">
+      <h2 class="section-title">Your listing</h2>
+      <p class="section-desc">This is what other students see. You can have one listing at a time — edit it any time your situation changes.</p>
+      <div class="listing-card" id="myListingCard" style="border-style:dashed;"></div>
+      <div class="form-actions">
+        <button class="btn btn-primary" id="editMyListingBtn">Edit my listing</button>
+        <button class="btn btn-danger" id="removeMyListingBtn">Remove my listing</button>
+      </div>
+    </div>
+
+    <div class="surface" id="myListingFormWrap">
+      <h2 class="section-title" id="postFormTitle">Post your listing</h2>
+      <p class="section-desc" id="postFormDesc">Takes under a minute. Your contact info is only revealed when someone taps "Show contact." You can edit or remove this any time.</p>
+
+      <form id="postForm">
+        <div class="field-block">
+          <label class="field-label">What are you posting?</label>
+          <div class="radio-row" id="typeChips">
+            <label class="radio-chip checked"><input type="radio" name="type" value="room" checked> I have a room / seat available</label>
+            <label class="radio-chip"><input type="radio" name="type" value="roommate"> I'm looking for a room / roommate</label>
+          </div>
+        </div>
+
+        <div class="field-grid">
+          <div class="field-block">
+            <label class="field-label">Your name</label>
+            <input type="text" id="fName" required placeholder="e.g. Ananya R.">
+          </div>
+          <div class="field-block">
+            <label class="field-label">Contact (phone or email)</label>
+            <input type="text" id="fContact" required placeholder="e.g. 98765xxxxx">
+          </div>
+          <div class="field-block">
+            <label class="field-label">Area / locality</label>
+            <input type="text" id="fLocation" required placeholder="e.g. Rajpur Road">
+          </div>
+          <div class="field-block">
+            <label class="field-label">Distance from college (km)</label>
+            <input type="number" id="fDistance" required min="0" step="0.1" placeholder="e.g. 1.5">
+          </div>
+          <div class="field-block">
+            <label class="field-label">Budget (₹ per month)</label>
+            <input type="number" id="fBudget" required min="0" placeholder="e.g. 6500">
+          </div>
+          <div class="field-block">
+            <label class="field-label">Gender preference</label>
+            <select id="fGender">
+              <option>Any</option>
+              <option>Male</option>
+              <option>Female</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field-grid">
+          <div class="field-block">
+            <label class="field-label">Food habit</label>
+            <select id="fFood">
+              <option>Veg</option>
+              <option>Non-veg</option>
+              <option>Any</option>
+            </select>
+          </div>
+          <div class="field-block">
+            <label class="field-label">Sleep schedule</label>
+            <select id="fSleep">
+              <option>Early riser</option>
+              <option>Night owl</option>
+              <option>Flexible</option>
+            </select>
+          </div>
+          <div class="field-block">
+            <label class="field-label">Smoking</label>
+            <select id="fSmoking">
+              <option>No</option>
+              <option>Yes</option>
+              <option>Doesn't matter</option>
+            </select>
+          </div>
+          <div class="field-block">
+            <label class="field-label">Cleanliness (1 = relaxed, 5 = very tidy)</label>
+            <select id="fClean">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3" selected>3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field-block">
+          <label class="field-label">A little about the place / yourself</label>
+          <textarea id="fDesc" placeholder="e.g. 2BHK flat, 5 min walk to campus gate, looking for one more flatmate."></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" id="postSubmitBtn">Post listing</button>
+          <button type="button" class="btn btn-secondary" id="cancelEditBtn" style="display:none;">Cancel</button>
+          <span class="toast" id="postToast"></span>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- MATCH / PREFERENCES PANEL -->
+  <section class="panel" id="panel-match">
+    <div class="surface">
+      <h2 class="section-title">My preferences</h2>
+      <p class="section-desc">Fill this once — every listing in Browse will then show a compatibility score based on these answers. Nothing here is posted publicly.</p>
+
+      <div class="field-grid">
+        <div class="field-block">
+          <label class="field-label">Food habit</label>
+          <select id="mFood">
+            <option>Veg</option>
+            <option>Non-veg</option>
+            <option>Any</option>
+          </select>
+        </div>
+        <div class="field-block">
+          <label class="field-label">Sleep schedule</label>
+          <select id="mSleep">
+            <option>Early riser</option>
+            <option>Night owl</option>
+            <option>Flexible</option>
+          </select>
+        </div>
+        <div class="field-block">
+          <label class="field-label">Smoking</label>
+          <select id="mSmoking">
+            <option>No</option>
+            <option>Yes</option>
+            <option>Doesn't matter</option>
+          </select>
+        </div>
+        <div class="field-block">
+          <label class="field-label">Cleanliness (1–5)</label>
+          <select id="mClean">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3" selected>3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-primary" id="saveMatchBtn">Save preferences</button>
+        <button class="btn btn-secondary" id="clearMatchBtn">Clear</button>
+        <span class="toast" id="matchToast"></span>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">Nook — a free campus housing board. Built as a student innovation project.</footer>
+</div>
+
+<script>
+(function(){
+  // ====================================================================
+  // PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL BETWEEN THE QUOTES BELOW.
+  // See SETUP-INSTRUCTIONS.md for how to get this URL (takes ~10 min, free).
+  // ====================================================================
+  const API_URL = "https://script.google.com/macros/s/AKfycbw2_NOpAR5TqGwMIchuz6q1o_jvIiGdbi21IpoIQq01Agspgvs2_Az74OpYzOtVVQM/exec";
+
+  const PREF_KEY = 'nook_prefs_v1';
+  const MY_ID_KEY = 'nook_my_listing_id';
+  const POLL_MS = 8000;
+
+  const SAMPLE_LISTINGS = [
+    {id:'s1', type:'room', name:'Kabir S.', contact:'kabir.s@example.edu', location:'Near North Gate', distance:0.8, budget:6000, gender:'Any', food:'Any', sleep:'Flexible', smoking:'No', clean:4, desc:'Single room in a 2BHK shared flat. Balcony, wifi included, 5 min walk to campus.', ts: Date.now()-1000*60*60*24*2},
+    {id:'s2', type:'roommate', name:'Priya M.', contact:'priya.m@example.edu', location:'Rajpur Road', distance:1.5, budget:5500, gender:'Female', food:'Veg', sleep:'Early riser', smoking:'No', clean:5, desc:'Second-year student looking for a tidy, quiet roommate near the science block.', ts: Date.now()-1000*60*60*24*1},
+    {id:'s3', type:'room', name:'Arjun T.', contact:'98765xxxxx', location:'Clement Town', distance:2.2, budget:4500, gender:'Male', food:'Non-veg', sleep:'Night owl', smoking:"Doesn't matter", clean:2, desc:'Spare bed in a 3-person flat. Chill vibe, close to the market.', ts: Date.now()-1000*60*60*5},
+    {id:'s4', type:'roommate', name:'Sana K.', contact:'sana.k@example.edu', location:'Any area near campus', distance:3, budget:7000, gender:'Any', food:'Any', sleep:'Flexible', smoking:'No', clean:3, desc:'Fresher, new to the city, looking for a friendly roommate to split a 1BHK.', ts: Date.now()-1000*60*60*30},
+    {id:'s5', type:'room', name:'Rohan D.', contact:'rohan.d@example.edu', location:'Near Hostel Road', distance:0.4, budget:5000, gender:'Male', food:'Veg', sleep:'Early riser', smoking:'No', clean:4, desc:'PG room, 2 min from main gate. Includes meals.', ts: Date.now()-1000*60*60*70},
+    {id:'s6', type:'roommate', name:'Meher V.', contact:'meher.v@example.edu', location:'Prefers Rajpur Rd / Clement Town', distance:2, budget:6500, gender:'Female', food:'Non-veg', sleep:'Night owl', smoking:'No', clean:2, desc:'Design student, works late. Looking for someone relaxed about mess and schedule.', ts: Date.now()-1000*60*60*12},
+  ];
+
+  function isConfigured(){
+    return !!API_URL && API_URL.indexOf('PASTE_YOUR') === -1 && API_URL.indexOf('http') === 0;
+  }
+
+  function normalizeListing(l){
+    return Object.assign({}, l, {
+      distance: parseFloat(l.distance) || 0,
+      budget: parseInt(l.budget) || 0,
+      clean: parseInt(l.clean) || 3,
+      ts: parseInt(l.ts) || 0
+    });
+  }
+
+  async function apiGet(){
+    const res = await fetch(API_URL, { method: 'GET' });
+    if(!res.ok) throw new Error('Server returned ' + res.status);
+    const data = await res.json();
+    if(!data.ok) throw new Error(data.error || 'Unknown server error');
+    return (data.listings || []).map(normalizeListing);
+  }
+
+  async function apiPost(body){
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // avoids a CORS preflight that Apps Script can't answer
+      body: JSON.stringify(body)
+    });
+    if(!res.ok) throw new Error('Server returned ' + res.status);
+    const data = await res.json();
+    if(!data.ok) throw new Error(data.error || 'Unknown server error');
+    return data;
+  }
+
+  // ---- personal (per-device) data: preferences + "which listing is mine" ----
+  function loadPrefs(){
+    try { return JSON.parse(localStorage.getItem(PREF_KEY)) || null; }
+    catch(e){ return null; }
+  }
+  function savePrefs(p){
+    try { localStorage.setItem(PREF_KEY, JSON.stringify(p)); } catch(e){}
+  }
+  function getMyListingId(){
+    try { return localStorage.getItem(MY_ID_KEY); } catch(e){ return null; }
+  }
+  function setMyListingId(id){
+    try { localStorage.setItem(MY_ID_KEY, id); } catch(e){}
+  }
+  function clearMyListingId(){
+    try { localStorage.removeItem(MY_ID_KEY); } catch(e){}
+  }
+  function getMyListing(){
+    const id = getMyListingId();
+    if(!id) return null;
+    return cachedListings.find(l => l.id === id) || null;
+  }
+
+  // ---- shared data cache + sync status ----
+  let cachedListings = [];
+  let pollTimer = null;
+
+  function setSyncStatus(state, detail){
+    const el = document.getElementById('syncStatus');
+    if(!el) return;
+    if(state === 'syncing'){ el.textContent = 'Syncing…'; el.style.color = 'var(--ink-soft)'; }
+    else if(state === 'synced'){ el.textContent = 'Synced ✓'; el.style.color = 'var(--teal-deep)'; }
+    else if(state === 'error'){ el.textContent = "Couldn't reach shared list" + (detail ? ' (' + detail + ')' : ''); el.style.color = 'var(--danger)'; }
+    else if(state === 'unconfigured'){ el.textContent = 'Backend not connected — see banner above'; el.style.color = 'var(--danger)'; }
+    else { el.textContent = ''; }
+  }
+
+  async function refreshListings(){
+    if(!isConfigured()){
+      document.getElementById('configBanner').style.display = 'block';
+      setSyncStatus('unconfigured');
+      cachedListings = [];
+      renderListings();
+      renderMyListingPanel();
+      return;
+    }
+    document.getElementById('configBanner').style.display = 'none';
+    setSyncStatus('syncing');
+    try {
+      cachedListings = await apiGet();
+      setSyncStatus('synced');
+    } catch(e){
+      setSyncStatus('error', e.message);
+    }
+    renderListings();
+    renderMyListingPanel();
+  }
+
+  function startPolling(){
+    stopPolling();
+    pollTimer = setInterval(refreshListings, POLL_MS);
+  }
+  function stopPolling(){
+    if(pollTimer){ clearInterval(pollTimer); pollTimer = null; }
+  }
+
+  // TABS
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  const panels = document.querySelectorAll('.panel');
+  tabBtns.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      tabBtns.forEach(b=>b.classList.remove('active'));
+      panels.forEach(p=>p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+      if(btn.dataset.tab === 'browse'){ refreshListings(); startPolling(); }
+      else { stopPolling(); }
+      if(btn.dataset.tab === 'post') renderMyListingPanel();
+    });
+  });
+
+  document.getElementById('refreshBtn').addEventListener('click', refreshListings);
+
+  // TYPE CHIP TOGGLE (post form) — bound to the radio's change event so a label
+  // click and its synthetic input click never both fire the handler.
+  document.querySelectorAll('#typeChips .radio-chip input').forEach(input=>{
+    input.addEventListener('change', ()=>{
+      document.querySelectorAll('#typeChips .radio-chip').forEach(c=>{
+        c.classList.toggle('checked', c.querySelector('input').checked);
+      });
+    });
+  });
+
+  function readFormIntoListing(base){
+    const type = document.querySelector('#typeChips input:checked').value;
+    return Object.assign({}, base, {
+      type,
+      name: document.getElementById('fName').value.trim(),
+      contact: document.getElementById('fContact').value.trim(),
+      location: document.getElementById('fLocation').value.trim(),
+      distance: parseFloat(document.getElementById('fDistance').value) || 0,
+      budget: parseInt(document.getElementById('fBudget').value) || 0,
+      gender: document.getElementById('fGender').value,
+      food: document.getElementById('fFood').value,
+      sleep: document.getElementById('fSleep').value,
+      smoking: document.getElementById('fSmoking').value,
+      clean: parseInt(document.getElementById('fClean').value),
+      desc: document.getElementById('fDesc').value.trim()
+    });
+  }
+
+  function setTypeChip(type){
+    document.querySelectorAll('#typeChips .radio-chip').forEach(c=>{
+      const isMatch = c.querySelector('input').value === type;
+      c.classList.toggle('checked', isMatch);
+      c.querySelector('input').checked = isMatch;
+    });
+  }
+
+  function resetPostForm(){
+    document.getElementById('postForm').reset();
+    setTypeChip('room');
+    document.getElementById('postFormTitle').textContent = 'Post your listing';
+    document.getElementById('postFormDesc').textContent = "Takes under a minute. Your contact info is only revealed when someone taps \"Show contact.\" You can edit or remove this any time.";
+    document.getElementById('postSubmitBtn').textContent = 'Post listing';
+    document.getElementById('cancelEditBtn').style.display = 'none';
+  }
+
+  function setPostBusy(busy, label){
+    const btn = document.getElementById('postSubmitBtn');
+    btn.disabled = busy;
+    btn.textContent = busy ? (label || 'Saving…') : btn.dataset.restoreLabel || 'Post listing';
+  }
+
+  document.getElementById('postForm').addEventListener('submit', async function(e){
+    e.preventDefault();
+    const toast = document.getElementById('postToast');
+    if(!document.getElementById('fName').value.trim() || !document.getElementById('fContact').value.trim() || !document.getElementById('fLocation').value.trim()){
+      toast.style.color = 'var(--danger)';
+      toast.textContent = 'Please fill in name, contact and area.';
+      setTimeout(()=>{ toast.textContent=''; toast.style.color=''; }, 3000);
+      return;
+    }
+    if(!isConfigured()){
+      toast.style.color = 'var(--danger)';
+      toast.textContent = 'Backend not connected yet — see the banner at the top of the page.';
+      return;
+    }
+
+    const submitBtn = document.getElementById('postSubmitBtn');
+    const wasEditing = submitBtn.textContent === 'Save changes';
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Saving…';
+    toast.style.color = '';
+    toast.textContent = '';
+
+    try {
+      const myId = getMyListingId();
+      let listing;
+      if(myId && cachedListings.some(l => l.id === myId)){
+        listing = readFormIntoListing(cachedListings.find(l => l.id === myId));
+        await apiPost({ action: 'update', listing });
+      } else {
+        listing = readFormIntoListing({ id: 'l' + Date.now(), ts: Date.now() });
+        await apiPost({ action: 'add', listing });
+        setMyListingId(listing.id);
+      }
+      toast.textContent = 'Saved ✓';
+      setTimeout(()=> toast.textContent='', 2500);
+      resetPostForm();
+      await refreshListings();
+    } catch(err){
+      toast.style.color = 'var(--danger)';
+      toast.textContent = "Couldn't save — check your internet connection and try again.";
+      submitBtn.disabled = false;
+      submitBtn.textContent = wasEditing ? 'Save changes' : 'Post listing';
+    }
+  });
+
+  document.getElementById('cancelEditBtn').addEventListener('click', function(){
+    resetPostForm();
+    renderMyListingPanel();
+  });
+
+  document.getElementById('editMyListingBtn').addEventListener('click', function(){
+    const mine = getMyListing();
+    if(!mine) return;
+    document.getElementById('fName').value = mine.name;
+    document.getElementById('fContact').value = mine.contact;
+    document.getElementById('fLocation').value = mine.location;
+    document.getElementById('fDistance').value = mine.distance;
+    document.getElementById('fBudget').value = mine.budget;
+    document.getElementById('fGender').value = mine.gender;
+    document.getElementById('fFood').value = mine.food;
+    document.getElementById('fSleep').value = mine.sleep;
+    document.getElementById('fSmoking').value = mine.smoking;
+    document.getElementById('fClean').value = mine.clean;
+    document.getElementById('fDesc').value = mine.desc;
+    setTypeChip(mine.type);
+
+    document.getElementById('postFormTitle').textContent = 'Edit your listing';
+    document.getElementById('postFormDesc').textContent = 'Update your details below and save changes.';
+    document.getElementById('postSubmitBtn').textContent = 'Save changes';
+    document.getElementById('cancelEditBtn').style.display = 'inline-block';
+
+    document.getElementById('myListingSummary').style.display = 'none';
+    document.getElementById('myListingFormWrap').style.display = 'block';
+  });
+
+  document.getElementById('removeMyListingBtn').addEventListener('click', async function(){
+    if(!confirm('Remove your listing? Other students will no longer see it.')) return;
+    const myId = getMyListingId();
+    const btn = this;
+    btn.disabled = true;
+    btn.textContent = 'Removing…';
+    try {
+      await apiPost({ action: 'delete', id: myId });
+      clearMyListingId();
+      resetPostForm();
+      await refreshListings();
+    } catch(err){
+      alert("Couldn't remove your listing — check your internet connection and try again.");
+    }
+    btn.disabled = false;
+    btn.textContent = 'Remove my listing';
+  });
+
+  function renderMyListingPanel(){
+    const mine = getMyListing();
+    const summary = document.getElementById('myListingSummary');
+    const formWrap = document.getElementById('myListingFormWrap');
+    if(mine){
+      summary.style.display = 'block';
+      formWrap.style.display = 'none';
+      document.getElementById('myListingCard').innerHTML = buildListingCardHtml(mine, null, false);
+    } else {
+      summary.style.display = 'none';
+      formWrap.style.display = 'block';
+    }
+  }
+
+  // PREFERENCES
+  function fillPrefForm(){
+    const p = loadPrefs();
+    if(!p) return;
+    document.getElementById('mFood').value = p.food;
+    document.getElementById('mSleep').value = p.sleep;
+    document.getElementById('mSmoking').value = p.smoking;
+    document.getElementById('mClean').value = p.clean;
+  }
+  document.getElementById('saveMatchBtn').addEventListener('click', ()=>{
+    const p = {
+      food: document.getElementById('mFood').value,
+      sleep: document.getElementById('mSleep').value,
+      smoking: document.getElementById('mSmoking').value,
+      clean: parseInt(document.getElementById('mClean').value)
+    };
+    savePrefs(p);
+    const toast = document.getElementById('matchToast');
+    toast.textContent = 'Saved — check Browse for match scores ✓';
+    setTimeout(()=> toast.textContent='', 3000);
+  });
+  document.getElementById('clearMatchBtn').addEventListener('click', ()=>{
+    localStorage.removeItem(PREF_KEY);
+    document.getElementById('matchToast').textContent = 'Preferences cleared';
+    setTimeout(()=> document.getElementById('matchToast').textContent='', 2000);
+  });
+  fillPrefForm();
+
+  // MATCH SCORE CALC
+  function computeMatch(pref, listing){
+    if(!pref) return null;
+    let score = 0;
+    score += (pref.food === listing.food || pref.food === 'Any' || listing.food === 'Any') ? 25 : 0;
+    score += (pref.sleep === listing.sleep || pref.sleep === 'Flexible' || listing.sleep === 'Flexible') ? 25 : 0;
+    score += (pref.smoking === listing.smoking || pref.smoking === "Doesn't matter" || listing.smoking === "Doesn't matter") ? 20 : 0;
+    const diff = Math.abs(pref.clean - listing.clean);
+    score += Math.round(20 * (1 - diff/4));
+    score += 10; // base courtesy points so scores don't look harshly low
+    return Math.min(100, score);
+  }
+
+  // SAMPLE / CLEAR DATA
+  document.getElementById('loadSampleBtn').addEventListener('click', async ()=>{
+    if(!isConfigured()) return;
+    const btn = document.getElementById('loadSampleBtn');
+    btn.disabled = true;
+    try {
+      await apiPost({ action: 'clear' });
+      await apiPost({ action: 'seed', listings: SAMPLE_LISTINGS });
+      clearMyListingId();
+      resetPostForm();
+      await refreshListings();
+    } catch(err){
+      alert("Couldn't load sample listings — check your internet connection and try again.");
+    }
+    btn.disabled = false;
+  });
+  document.getElementById('clearAllBtn').addEventListener('click', async ()=>{
+    if(!isConfigured()) return;
+    if(!confirm('Remove all listings for everyone? This cannot be undone.')) return;
+    const btn = document.getElementById('clearAllBtn');
+    btn.disabled = true;
+    try {
+      await apiPost({ action: 'clear' });
+      clearMyListingId();
+      resetPostForm();
+      await refreshListings();
+    } catch(err){
+      alert("Couldn't clear listings — check your internet connection and try again.");
+    }
+    btn.disabled = false;
+  });
+
+  // FILTERS
+  ['filterType','filterBudget','filterDistance','filterGender'].forEach(id=>{
+    document.getElementById(id).addEventListener('input', renderListings);
+  });
+
+  function escapeHtml(str){
+    return (str||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  function buildListingCardHtml(l, matchScore, isMineHere){
+    return `
+        <div class="listing-top">
+          <span class="listing-type-badge ${l.type==='room'?'type-room':'type-roommate'}">${l.type==='room' ? 'Room available' : 'Looking for room'}</span>
+          ${isMineHere ? '<span class="match-badge" style="background:var(--mustard-deep);">Your listing</span>' : (matchScore !== null && matchScore !== undefined ? `<span class="match-badge">${matchScore}% match</span>` : '')}
+        </div>
+        <h3 class="listing-title">${escapeHtml(l.location)}</h3>
+        <div class="listing-meta">
+          <span>📍 ${l.distance} km from campus</span>
+          <span>👤 ${escapeHtml(l.gender)}</span>
+        </div>
+        <p class="listing-desc">${escapeHtml(l.desc) || 'No additional details provided.'}</p>
+        <div class="pref-tags">
+          <span class="pref-tag">${escapeHtml(l.food)}</span>
+          <span class="pref-tag">${escapeHtml(l.sleep)}</span>
+          <span class="pref-tag">Smoking: ${escapeHtml(l.smoking)}</span>
+          <span class="pref-tag">Tidiness ${l.clean}/5</span>
+        </div>
+        <div class="listing-footer">
+          <span class="budget-tag">₹${(l.budget||0).toLocaleString('en-IN')}/mo</span>
+          ${isMineHere ? `<span class="contact-reveal">${escapeHtml(l.name)} · ${escapeHtml(l.contact)}</span>` : `<button class="btn btn-secondary reveal-btn" data-id="${l.id}">Show contact</button>`}
+        </div>
+    `;
+  }
+
+  function renderListings(){
+    const list = cachedListings;
+    const pref = loadPrefs();
+    const type = document.getElementById('filterType').value;
+    const maxBudget = parseFloat(document.getElementById('filterBudget').value);
+    const maxDist = parseFloat(document.getElementById('filterDistance').value);
+    const gender = document.getElementById('filterGender').value;
+
+    let filtered = list.filter(l=>{
+      if(type !== 'all' && l.type !== type) return false;
+      if(!isNaN(maxBudget) && l.budget > maxBudget) return false;
+      if(!isNaN(maxDist) && l.distance > maxDist) return false;
+      if(gender !== 'Any' && l.gender !== 'Any' && l.gender !== gender) return false;
+      return true;
+    });
+
+    filtered.forEach(l => l._match = computeMatch(pref, l));
+    if(pref){
+      filtered.sort((a,b)=> (b._match - a._match) || (b.ts - a.ts));
+    } else {
+      filtered.sort((a,b)=> b.ts - a.ts);
+    }
+
+    const grid = document.getElementById('listingGrid');
+    const empty = document.getElementById('emptyState');
+    document.getElementById('countNote').textContent = filtered.length + (filtered.length===1 ? ' listing' : ' listings');
+
+    const myId = getMyListingId();
+
+    if(filtered.length === 0){
+      grid.innerHTML = '';
+      empty.style.display = 'block';
+    } else {
+      empty.style.display = 'none';
+      grid.innerHTML = filtered.map(l => `
+        <div class="listing-card" ${l.id === myId ? 'style="border-color:var(--mustard-deep);"' : ''}>
+          ${buildListingCardHtml(l, l._match, l.id === myId)}
+        </div>
+      `).join('');
+
+      grid.querySelectorAll('.reveal-btn').forEach(btn=>{
+        btn.addEventListener('click', function(){
+          const l = filtered.find(x=>x.id === this.dataset.id);
+          this.outerHTML = `<span class="contact-reveal">${escapeHtml(l.name)} · ${escapeHtml(l.contact)}</span>`;
+        });
+      });
+    }
+
+    document.getElementById('statTotal').textContent = list.length;
+    document.getElementById('statRooms').textContent = list.filter(l=>l.type==='room').length;
+    document.getElementById('statSeekers').textContent = list.filter(l=>l.type==='roommate').length;
+  }
+
+  // Initial load
+  refreshListings();
+  startPolling();
+})();
+</script>
+</body>
+</html>
